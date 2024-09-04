@@ -37,31 +37,34 @@ class CalorieTracker {
   }
 
   removeMeal(id) {
-    const index = this._meals.findIndex((meal) => meal.id === id);
-    if (index !== -1) {
-      const meal = this._meals[index];
-      this._meals.splice(index, 1);
-      this._totalCalories -= meal.calories;
-      Storage.updateCalories(this._totalCalories);
-      this._render();
-    }
+    this._meals.forEach((meal, index) => {
+      if (meal.id === id) {
+        this._totalCalories -= meal.calories;
+        this._meals.splice(index, 1);
+      }
+    });
+    Storage.updateCalories(this._totalCalories);
+    Storage.removeMeal(id); // Add this line
+    this._render();
   }
 
   removeWorkout(id) {
-    const index = this._workouts.findIndex((workout) => workout.id === id);
-    if (index !== -1) {
-      const workout = this._workouts[index];
-      this._workouts.splice(index, 1);
-      this._totalCalories += workout.calories;
-      Storage.updateCalories(this._totalCalories);
-      this._render();
-    }
+    this._workouts.forEach((workout, index) => {
+      if (workout.id === id) {
+        this._totalCalories += workout.calories;
+        this._workouts.splice(index, 1);
+      }
+    });
+    Storage.updateCalories(this._totalCalories);
+    Storage.removeWorkout(id); // Add this line
+    this._render();
   }
 
   reset() {
     this._totalCalories = 0;
     this._meals = [];
     this._workouts = [];
+    Storage.clearAll();
     this._render();
   }
 
@@ -255,6 +258,30 @@ class Storage {
     const workouts = Storage.getWorkouts();
     workouts.push(workout);
     localStorage.setItem("workouts", JSON.stringify(workouts));
+  }
+
+  static removeMeal(id) {
+    const meals = Storage.getMeals();
+    meals.forEach((meal, index) => {
+      if (meal.id === id) {
+        meals.splice(index, 1);
+      }
+    });
+    localStorage.setItem("meals", JSON.stringify(meals));
+  }
+
+  static removeWorkout(id) {
+    const workouts = Storage.getWorkouts();
+    workouts.forEach((workout, index) => {
+      if (workout.id === id) {
+        workouts.splice(index, 1);
+      }
+    });
+    localStorage.setItem("workouts", JSON.stringify(workouts));
+  }
+
+  static clearAll() {
+    localStorage.clear();
   }
 }
 
